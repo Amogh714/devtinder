@@ -1,0 +1,141 @@
+// app.use("/user",(req,res)=>{
+//     res.send("hello hello hello xyz")
+// });
+
+// app.get("/user/:userid/:name/:age",(req,res)=>{
+//     // const age=req.query.age;
+//     // console.log(req.query.age);
+//     console.log(req.params.age=``)
+//     res.send({"name":"Amogh","surname":"Asdhir"})
+// });
+// app.post("/user",(req,res)=>{
+//     res.send("user posted successfully")
+// });
+// app.delete("/user",(req,res)=>{
+//     res.send("data deleted successfully")
+// });
+
+// app.use("/test",(req,res)=>{
+//     res.send("this was a test")
+// });
+// app.use("/",(req,res)=>{
+//     res.send("hello amogh")
+// });
+
+
+
+const {adminauth,userauth}=require("./middlewares/auth")
+// app.use("/admin",adminauth);
+// app.get("/admin/getalldata",(req,res)=>{
+//     res.send("hey all data is deleted");
+// })  
+// app.get("/admin/deletealldata",(req,res)=>{
+//     res.send("hey all data is deleted");
+// })  
+// app.get("/user/getdata",userauth,(req,res)=>{
+//     res.send("hey this is your data");
+// })
+// app.get("/user/login",(req,res,next)=>{
+//     try{
+//     // throw new Error(w2jycyui3);
+//     // res.send("hey you have logged in");
+//     console.log("no error occured");
+//     next();
+//     }catch(err){
+//      res.status(503).send("something happened help")
+//     }
+// },(req,res)=>{
+//     res.status(200).send("hello");
+// })
+
+
+// app.use("/",(err,req,res,next)=>{
+//     if (err){
+//         res.status(500).send("bachao bachao bachao");
+//     }
+// })
+
+// app.get("/user/deletedata",userauth,(req,res)=>{
+//     res.send("hey your data is deleted");
+// }) 
+
+
+
+
+
+//api to get data from the database
+app.get("/userfindone",async (req,res)=>{
+    const userEmail=req.body.emailId;
+    try{
+    const users= await User.findOne({emailId: userEmail});
+    if(!users){
+        res.send("user not found");
+    }
+    else{
+        res.send(users);
+    }
+    }catch(err){
+        res.status(404).send("something wnet wrong");
+    }
+})
+
+
+//api to get all the data from the database
+app.get("/feed",async (req,res)=>{
+    try{
+    const users=await User.find({});
+    console.log(users);
+    if(users.length===0)
+        {
+            res.send("data empty nothing present")
+        }
+    else{
+            res.send(users);
+    }
+    }
+    catch(err){
+        res.status(500).send("some error occured",err);
+    }
+
+
+})
+
+
+//api to to delete a user by id
+app.delete("/user/:userid",async(req,res)=>{
+    const userId=req.params?.userid;
+    try{
+        await User.findByIdAndDelete({_id:userId})
+        res.send("user deleted successfully");
+    }catch(err){
+        res.status(500).send("some error occured")
+    }
+})
+
+
+//api to to patch a user by id
+app.patch("/user/:userid", async(req,res)=>{
+     const userid=req.params?.userid;
+     const data=req.body;
+    
+    try{
+         const AU=["age","about","photo url"];
+    const canupdate=Object.keys(data).every((k)=>{
+           return AU.includes(k);
+    })
+    console.log(canupdate)
+        if(!canupdate){
+        res.status(404).send("cannot patch the fields you have sent");
+    }
+    
+        if(userid===undefined){
+        res.status(404).send("no id send in params");
+    }
+        await User.findByIdAndUpdate(userid,data,{
+           runValidators:true
+        });
+        res.send("user updated succesfully");
+    }catch(err){
+        res.status(500).send("some error occured")
+    }
+})

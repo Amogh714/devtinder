@@ -1,15 +1,39 @@
 const express= require ("express");
-
 const app=express();
-app.use("/hello",(req,res)=>{
-    res.send("hello hello hello")
+const {connectDB}=require("./config/database");
+const cookieParser=require("cookie-parser");
+const{authRouter}=require("./router/authrouter.js")
+const{profileRouter}=require("./router/profilerouter.js")
+const{connectionRouter}=require("./router/connectionrouter.js")
+const{userRouter}=require("./router/userrouter.js")
+const cors=require("cors")
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials:true
+  })
+);
+// api to convert allthe json data into js objects
+app.use(express.json());
+//api to parse cookies
+app.use(cookieParser());
+
+app.use("/",authRouter);
+app.use("/",profileRouter);
+app.use("/",connectionRouter);
+app.use("/",userRouter);
+
+
+connectDB()
+    .then(()=>{
+    console.log("connection established successfully")
+    app.listen(7777,()=>{
+        console.log("successfully connected to 7777 port number");
+    })
+})
+.catch((err)=>{
+    console.log("connection to the database failed");
 });
-app.use("/test",(req,res)=>{
-    res.send("this was a test")
-});
-app.use((req,res)=>{
-    res.send("hello this is my first node server")
-});
-app.listen(7777,()=>{
-    console.log("we are listening to port 7777");
-});
+
+
+
+
