@@ -8,7 +8,7 @@ const{connectionRouter}=require("./router/connectionrouter.js")
 const{userRouter}=require("./router/userrouter.js")
 const cors=require("cors")
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: "http://16.170.228.138:5173",
     credentials:true
   })
 );
